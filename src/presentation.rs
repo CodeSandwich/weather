@@ -5,13 +5,18 @@
 // http://openweathermap.org/
 // http://api.openweathermap.org/data/2.5/weather?q=Wroclaw&appid=40212611efdf88f5b7b0a0a552e250b3
 
+// Intellij - just editor
+
 // Cargo - rustc wrapper, kombajn do kompilacji
 
 // Initialise project
 
 cargo init --bin
 
-
+// open in Intellij
+// Cargo.toml
+// main.rs
+// cargo run
 
 
 ///////////
@@ -55,35 +60,50 @@ for arg in args() {
 //// 3 ////
 ///////////
 
-// let creates variable
+// let creates variables
 
-let args = args().skip(1);
-
-// Iterator returns option
-// https://doc.rust-lang.org/std/option/enum.Option.html
-
-let key = args.next().expect("Key must be the first arg");
+let args = args();
 
 //
 
-let city = args.next().unwrap_or("Wrocław".to_string());
+let key = args.next();
 
-// Because macro, can get N args
-
-println!("Key: {}\nCity: {}", key, city);
-
-// next needs mut, must be mut explicitly
+//
 
 mut
 
-//use std::env;
 //
-//fn main() {
-//    let mut args = args().skip(1);
-//    let key = args.next().expect("Key must be the first arg");
-//    let city = args.next().unwrap_or("Wrocław".to_string());
-//    println!("Key: {}\nCity: {}", key, city);
-//}
+
+println!("Key: {}", key);
+
+// https://doc.rust-lang.org/std/option/enum.Option.html
+
+.expect("Key must be the first arg")
+
+//
+
+.skip(1)
+
+
+
+
+
+
+///////////
+//// 3A ////
+///////////
+
+let city = args.next();
+
+//
+
+.unwrap_or("Wrocław".to_string())
+
+//
+
+println!("Key: {}\nCity: {}", key, city);
+
+
 
 
 
@@ -93,7 +113,6 @@ mut
 ///////////
 
 // Need HTTP request, not in std
-// Cargo.toml steruje Cargo
 // https://crates.io/
 // http request client BY DOWNLOAD RECENT
 // Paste in Cargo.toml
@@ -111,30 +130,20 @@ let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}"
 
 //
 
-reqwest::get(&url).expect("Request failed");
+let text = reqwest::get(&url);
+
+// https://doc.rust-lang.org/std/result/enum.Result.html
+
+.expect("Request failed")
 
 // Look ma, no exceptions!
 
-let text = reqwest::get(&url).expect("Request failed")
-    .text().expect("Request body is not text");
+
+    .text().expect("Request has no body")
 
 //
 
 println!("RESPONSE:\n{}", text);
-
-//extern crate reqwest;
-//
-//use std::env::args;
-//
-//fn main() {
-//    let mut args = args().skip(1);
-//    let key = args.next().expect("Key must be the first arg");
-//    let city = args.next().unwrap_or("Wrocław".to_string());
-//    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}", city, key);
-//    let text = reqwest::get(&url).expect("Request failed")
-//        .text().expect("Request body is not text");
-//    println!("RESPONSE:\n{}", text);
-//}
 
 
 
@@ -143,27 +152,9 @@ println!("RESPONSE:\n{}", text);
 //// 5 ////
 ///////////
 
-// We recreate JSON in structures
-
-struct Response {
-    pub main: ResponseMain,
-}
-
-struct ResponseMain {
-    pub temp: f64,
-}
-
-
-
-
-///////////
-//// 6 ////
-///////////
-
 // https://docs.rs/reqwest/0.8.5/reqwest/struct.Response.html#method.json
-// Response can deserialize from JSON to Serde Deserialize
-// What is Serde?
-// We will implement Deserialize for Response our structs (with macro!)
+
+// What is serde?
 
 serde = "1.0.37"
 serde_derive = "1.0.37"
@@ -174,14 +165,34 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+// http://api.openweathermap.org/data/2.5/weather?q=Wroclaw&appid=40212611efdf88f5b7b0a0a552e250b3
+// Temperature first
+// We recreate JSON in structures
+
+struct Response {
+    pub main: ResponseMain,
+}
+
+//
+
+struct ResponseMain {
+    pub temp: f64,
+}
+
 // Automatic generate deserialize implementation
 
 #[derive(Deserialize)]
 
 //
 
-let response: Response = reqwest::get(&url).expect("Request failed")
-    .json().expect("Request body is not json");
+.json().expect("Request body is not json");
+
+//
+
+response: Response
+
+//
+
 println!("TEMP: {}", response.main.temp);
 
 
@@ -205,16 +216,6 @@ impl ResponseMain {
 pub
 
 //
-
-println!("TEMP: {}", response.main.get_celsius());
-
-
-
-
-
-///////////
-//// 7 ////
-///////////
 
 impl Response {
     fn create_report(&self) -> String {
@@ -265,18 +266,7 @@ enum WeatherMain {
     Additional,
 }
 
-//
-
-impl Response {
-    pub fn create_report(&self) -> String {
-        let mut report = format!("{:.01}°C ", self.main.get_celsius());
-        self.weather.iter()
-            .for_each(|w| w.main.push_icon(&mut report));
-        report
-    }
-}
-
-//
+// mutable ref
 
 impl WeatherMain {
     pub fn push_icon(&self, string: &mut String) {
@@ -294,3 +284,14 @@ impl WeatherMain {
         string.push(icon);
     }
 }
+
+//
+
+//impl Response {
+//    pub fn create_report(&self) -> String {
+        let mut report = format!("{:.01}°C ", self.main.get_celsius());
+        self.weather.iter()
+            .for_each(|w| w.main.push_icon(&mut report));
+        report
+    }
+//}
