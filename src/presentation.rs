@@ -45,14 +45,6 @@ for arg in args() {
     println!("{}", arg)
 }
 
-//use std::env;
-//
-//fn main() {
-//    for arg in args() {
-//        println!("{}", arg)
-//    }
-//}
-
 
 
 
@@ -114,7 +106,8 @@ println!("Key: {}\nCity: {}", key, city);
 
 // Need HTTP request, not in std
 // https://crates.io/
-// http request client BY DOWNLOAD RECENT
+//                                      http request client
+// BY DOWNLOAD RECENT
 // Paste in Cargo.toml
 // Compile, downloads!
 
